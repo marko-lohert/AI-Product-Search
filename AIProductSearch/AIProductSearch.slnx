@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AIProductSearch/AIProductSearch.Client/AIProductSearch.Client.csproj" />
+  <Project Path="AIProductSearch/AIProductSearch/AIProductSearch.csproj" />
+</Solution>
