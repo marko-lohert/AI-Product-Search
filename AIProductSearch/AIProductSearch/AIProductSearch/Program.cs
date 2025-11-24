@@ -1,5 +1,6 @@
 using AIProductSearch.Components;
 using AIProductSearch.DAL;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddMudServices();
 
 builder.Services.AddSingleton(new Products($"Data Source={builder.Configuration["Database:FullFileName"]}"));
 
