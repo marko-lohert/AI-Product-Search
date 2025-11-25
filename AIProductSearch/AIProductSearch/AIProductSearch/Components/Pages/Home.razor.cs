@@ -42,6 +42,7 @@ public partial class Home
 
         ChatOptions options = new()
         {
+            Temperature = 0.95f,
             AllowMultipleToolCalls = true,
             Tools = [AIFunctionFactory.Create(IsRecommendedProduct)]
         };
