@@ -2,6 +2,7 @@
 using AIProductSearch.DAO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.AI;
+using System.Diagnostics;
 
 namespace AIProductSearch.Components.Pages;
 
@@ -18,6 +19,8 @@ public partial class Home
     bool IsOutputVisible { get; set; } = false;
 
     List<ChatMessage> ChatHistory = new();
+    decimal ThinkingTime { get; set; } = 0;
+    bool ShowThinkingTime { get; set; } = false;
 
     private async Task Search()
     {
@@ -26,6 +29,7 @@ public partial class Home
 
         Result = string.Empty;
         IsOutputVisible = true; // The actual result is not yet available, so ‘Thinking’ will be displayed.
+        ShowThinkingTime = false;
 
         string prompt = @$"""
             Look at the following data about products:
@@ -36,13 +40,20 @@ public partial class Home
         ChatHistory.Add(new ChatMessage(ChatRole.User, prompt));
         List<ChatResponseUpdate> completeResponse = [];
 
-        await foreach (ChatResponseUpdate responseUpdate in ChatClient.GetStreamingResponseAsync(ChatHistory))
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+
+        await foreach (ChatResponseUpdate responseUpdate in ChatClient.GetStreamingResponseAsync(prompt))
         {
             Result += responseUpdate.Text;
             StateHasChanged();
 
             completeResponse.Add(responseUpdate);
         }
+
+        stopwatch.Stop();
+        ThinkingTime = stopwatch.ElapsedMilliseconds;
+        ShowThinkingTime = true;
 
         ChatHistory.AddMessages(completeResponse);
     }
@@ -51,6 +62,10 @@ public partial class Home
     {
         Result = string.Empty;
         IsOutputVisible = true; // The actual result is not yet available, so ‘Thinking’ will be displayed.
+        ShowThinkingTime = false;
+
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
 
         List<ProductAnalysisResult> productsSummaries = new();
 
@@ -74,9 +89,13 @@ public partial class Home
         int countKeyword = productsSummaries.Sum(x => x.DescriptionKeywords?.Count ?? 0);
 
         Result = $"{productsSummaries.Count} products were analyzed. {countKeyword} keywords were found.";
+
+        stopwatch.Stop();
+        ThinkingTime = stopwatch.ElapsedMilliseconds;
+        ShowThinkingTime = true;
     }
 
-    public class ProductAnalysisResult 
+    public class ProductAnalysisResult
     {
         public string ProductName { get; set; }
         public List<string> DescriptionKeywords { get; set; }

@@ -25,7 +25,13 @@
     <div style="display:flex;flex-direction:row;justify-content:center;margin-top:50px">
         @if (!string.IsNullOrEmpty(Result))
         {
-            <MudText Typo="Typo.body1" style="max-width:700px">@Result</MudText>
+            <MudStack>
+                <MudText Typo="Typo.body1" style="max-width:700px">@Result</MudText>
+                @if (ShowThinkingTime)
+                {
+                    <MudText Typo="Typo.body1" Align="Align.Center" style="margin-top:50px;max-width:700px">Answered in @ThinkingTime ms</MudText>
+                }
+            </MudStack>
         }
         else
         {
