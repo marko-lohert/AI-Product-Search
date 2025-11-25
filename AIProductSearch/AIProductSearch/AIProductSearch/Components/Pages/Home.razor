@@ -14,6 +14,12 @@
     </MudItem>
 </MudGrid>
 
+<MudGrid Class="d-flex justify-center align-center" Style="margin-top:5px;margin-bottom:50px">
+    <MudItem>
+        <MudButton @onclick="AnalyzeProducts" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Analytics" Color="Color.Default">Analyze products</MudButton>
+    </MudItem>
+</MudGrid>
+
 @if (IsOutputVisible)
 {
     <div style="display:flex;flex-direction:row;justify-content:center;margin-top:50px">
