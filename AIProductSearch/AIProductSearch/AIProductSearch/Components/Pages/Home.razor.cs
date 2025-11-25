@@ -40,10 +40,16 @@ public partial class Home
         ChatHistory.Add(new ChatMessage(ChatRole.User, prompt));
         List<ChatResponseUpdate> completeResponse = [];
 
+        ChatOptions options = new()
+        {
+            AllowMultipleToolCalls = true,
+            Tools = [AIFunctionFactory.Create(IsRecommendedProduct)]
+        };
+
         Stopwatch stopwatch = new();
         stopwatch.Start();
 
-        await foreach (ChatResponseUpdate responseUpdate in ChatClient.GetStreamingResponseAsync(prompt))
+        await foreach (ChatResponseUpdate responseUpdate in ChatClient.GetStreamingResponseAsync(ChatHistory, options))
         {
             Result += responseUpdate.Text;
             StateHasChanged();
@@ -107,5 +113,13 @@ public partial class Home
         Croatian,
         English,
         German
+    }
+
+    public bool IsRecommendedProduct(Product product)
+    {
+        if (product is null || product.Name is null)
+            return false;
+
+        return product.Name.Contains("raspberry pi", StringComparison.InvariantCultureIgnoreCase) || product.Name.Contains("arduino", StringComparison.InvariantCultureIgnoreCase);
     }
 }

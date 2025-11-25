@@ -20,6 +20,7 @@ builder.Services.AddSingleton(new Products($"Data Source={builder.Configuration[
 builder.Services.AddChatClient(new ChatClientBuilder(new OllamaSharp.OllamaApiClient(builder.Configuration["Ollama:Url"], builder.Configuration["Ollama:ModelName"]))
     .UseDistributedCache(new MemoryDistributedCache(
                          Options.Create(new MemoryDistributedCacheOptions())))
+    .UseFunctionInvocation()
     .Build());
 
 var app = builder.Build();
