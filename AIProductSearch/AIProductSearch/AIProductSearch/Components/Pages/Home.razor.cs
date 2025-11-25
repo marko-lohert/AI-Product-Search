@@ -16,6 +16,8 @@ public partial class Home
     string Result { get; set; } = string.Empty;
     bool IsOutputVisible { get; set; } = false;
 
+    List<ChatMessage> ChatHistory = new();
+
     private async Task Search()
     {
         if (SearchText is null or "")
@@ -30,11 +32,17 @@ public partial class Home
             Give the short answer to the following question: 
             {SearchText}""";
 
+        ChatHistory.Add(new ChatMessage(ChatRole.User, prompt));
+        List<ChatResponseUpdate> completeResponse = [];
 
-        await foreach (ChatResponseUpdate update in ChatClient.GetStreamingResponseAsync(prompt))
+        await foreach (ChatResponseUpdate responseUpdate in ChatClient.GetStreamingResponseAsync(ChatHistory))
         {
-            Result += update.Text;
+            Result += responseUpdate.Text;
             StateHasChanged();
+
+            completeResponse.Add(responseUpdate);
         }
+
+        ChatHistory.AddMessages(completeResponse);
     }
 }
