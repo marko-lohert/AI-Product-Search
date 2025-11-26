@@ -12,6 +12,15 @@
     <MudItem>
         <MudButton @onclick="Search" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Search" Color="Color.Primary">Search</MudButton>
     </MudItem>
+    <MudItem>
+        <MudFileUpload T="IBrowserFile" FilesChanged="SearchUsingImage">
+            <ActivatorContent>
+                <MudButton Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Search using an image
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+    </MudItem>
 </MudGrid>
 
 <MudGrid Class="d-flex justify-center align-center" Style="margin-top:5px;margin-bottom:50px">

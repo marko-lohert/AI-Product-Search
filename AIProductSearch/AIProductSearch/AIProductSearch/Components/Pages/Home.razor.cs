@@ -1,6 +1,7 @@
 ﻿using AIProductSearch.DAL;
 using AIProductSearch.DAO;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.AI;
 using System.Diagnostics;
 
@@ -21,6 +22,7 @@ public partial class Home
     List<ChatMessage> ChatHistory = new();
     decimal ThinkingTime { get; set; } = 0;
     bool ShowThinkingTime { get; set; } = false;
+    long MaxAllowedUploadedFileSize = 100 * 1024 * 1024;
 
     private async Task Search()
     {
@@ -43,8 +45,10 @@ public partial class Home
         ChatOptions options = new()
         {
             Temperature = 0.95f,
-            AllowMultipleToolCalls = true,
-            Tools = [AIFunctionFactory.Create(IsRecommendedProduct)]
+            // We have switched to the "gemma3:4b" model, so we need to comment out ToolCalls
+            // because this model does not support ToolCalls.
+            //AllowMultipleToolCalls = true,
+            //Tools = [AIFunctionFactory.Create(IsRecommendedProduct)]
         };
 
         Stopwatch stopwatch = new();
@@ -122,5 +126,30 @@ public partial class Home
             return false;
 
         return product.Name.Contains("raspberry pi", StringComparison.InvariantCultureIgnoreCase) || product.Name.Contains("arduino", StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private async Task SearchUsingImage(IBrowserFile file)
+    {
+        byte[] imageContent = await GetFileContent(file);
+
+        ChatMessage message = new ChatMessage(ChatRole.User, "What is in this image? The answer must be short.");
+        message.Contents.Add(new DataContent(imageContent, file.ContentType));
+        ChatResponse response = await ChatClient.GetResponseAsync(message);
+
+        SearchText = $"Find products similar to {response.Text}";
+
+        await Search();
+    }
+
+    private async Task<byte[]> GetFileContent(IBrowserFile file)
+    {
+        if (file is null)
+            return [];
+
+        using Stream stream = file.OpenReadStream(MaxAllowedUploadedFileSize);
+        using MemoryStream memoryStream = new();
+        await stream.CopyToAsync(memoryStream);
+
+        return memoryStream.ToArray();
     }
 }
