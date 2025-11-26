@@ -1,5 +1,9 @@
 using AIProductSearch.Components;
 using AIProductSearch.DAL;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +17,11 @@ builder.Services.AddMudServices();
 
 builder.Services.AddSingleton(new Products($"Data Source={builder.Configuration["Database:FullFileName"]}"));
 
-builder.Services.AddChatClient(new OllamaSharp.OllamaApiClient(builder.Configuration["Ollama:Url"], builder.Configuration["Ollama:ModelName"]));
+builder.Services.AddChatClient(new ChatClientBuilder(new OllamaSharp.OllamaApiClient(builder.Configuration["Ollama:Url"], builder.Configuration["Ollama:ModelName"]))
+    .UseDistributedCache(new MemoryDistributedCache(
+                         Options.Create(new MemoryDistributedCacheOptions())))
+    .UseFunctionInvocation()
+    .Build());
 
 var app = builder.Build();
 
